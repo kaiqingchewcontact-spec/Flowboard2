@@ -9,7 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { id } = req.query;
   if (!id || typeof id !== 'string') return res.status(400).json({ error: 'Board ID required' });
 
-  // GET — single board
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin
       .from('boards')
@@ -22,10 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ data });
   }
 
-  // PATCH — update board
   if (req.method === 'PATCH') {
     const updates = req.body;
-
     const { data, error } = await supabaseAdmin
       .from('boards')
       .update(updates)
@@ -38,7 +35,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ data });
   }
 
-  // DELETE — delete board
   if (req.method === 'DELETE') {
     const { error } = await supabaseAdmin
       .from('boards')

@@ -23,6 +23,9 @@ export interface BoardSettings {
   layout: 'grid' | 'masonry' | 'list';
   columns: 2 | 3 | 4;
   show_branding: boolean;
+  cta_enabled?: boolean;
+  cta_text?: string;
+  cta_url?: string;
 }
 
 export const DEFAULT_BOARD_SETTINGS: BoardSettings = {
@@ -33,6 +36,9 @@ export const DEFAULT_BOARD_SETTINGS: BoardSettings = {
   layout: 'grid',
   columns: 3,
   show_branding: true,
+  cta_enabled: false,
+  cta_text: '',
+  cta_url: '',
 };
 
 // --- Card ---
@@ -49,6 +55,7 @@ export interface Card {
   link_url: string | null;
   is_premium: boolean;
   order_index: number;
+  tags: string[];
   created_at: string;
   updated_at: string;
 }
@@ -61,6 +68,7 @@ export interface CardFormData {
   cover_image?: string;
   link_url?: string;
   is_premium: boolean;
+  tags?: string[];
 }
 
 // --- API ---
@@ -74,3 +82,4 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Board, Card } from '@/types';
 import { Lock, ExternalLink, FileText, Zap, MessageSquareQuote, Link2, Image } from 'lucide-react';
+import CardOverlay from '@/components/cards/CardOverlay';
 
 const typeIcons: Record<string, typeof FileText> = {
   article: FileText,
@@ -20,26 +21,44 @@ export default function PublicBoard() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
-// Track board view
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
-useEffect(() => {
-  if (!board) return;
-  const visitorId = localStorage.getItem('fb_visitor') || 
-    Math.random().toString(36).substring(2);
-  localStorage.setItem('fb_visitor', visitorId);
-  
-  fetch('/api/public/track', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      board_id: board.id,
-      event_type: 'board_view',
-      visitor_id: visitorId,
-      referrer: document.referrer || null,
-    }),
-  }).catch(() => {});
-}, [board]);
+  useEffect(() => {
+    if (!slug) return;
+    async function fetchBoard() {
+      try {
+        const res = await fetch(`/api/public/board?slug=${slug}`);
+        if (!res.ok) { setError(true); setLoading(false); return; }
+        const json = await res.json();
+        setBoard(json.data.board);
+        setCards(json.data.cards);
+      } catch {
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchBoard();
+  }, [slug]);
+
+  // Track board view
+  useEffect(() => {
+    if (!board) return;
+    const visitorId = localStorage.getItem('fb_visitor') ||
+      Math.random().toString(36).substring(2);
+    localStorage.setItem('fb_visitor', visitorId);
+    fetch('/api/public/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        board_id: board.id,
+        event_type: 'board_view',
+        visitor_id: visitorId,
+        referrer: document.referrer || null,
+      }),
+    }).catch(() => {});
+  }, [board]);
 
   if (loading) {
     return (
@@ -61,6 +80,41 @@ useEffect(() => {
   const accentColor = board.settings?.accent_color || '#e85d3a';
   const bgColor = board.settings?.background_color || '#faf9f7';
   const layout = board.settings?.layout || 'grid';
+  const fontDisplay = board.settings?.font_display || 'DM Serif Display';
+
+  // CTA settings from board
+  const ctaEnabled = (board.settings as any)?.cta_enabled || false;
+  const ctaText = (board.settings as any)?.cta_text || '';
+  const ctaUrl = (board.settings as any)?.cta_url || '';
+
+  // Collect all tags
+  const allTags: string[] = [];
+  cards.forEach((card) => {
+    ((card as any).tags || []).forEach((tag: string) => {
+      if (!allTags.includes(tag)) allTags.push(tag);
+    });
+  });
+
+  // Filter cards by active tag
+  const filteredCards = activeTag
+    ? cards.filter((card) => ((card as any).tags || []).includes(activeTag))
+    : cards;
+
+  const handleCardClick = (card: Card) => {
+    if (card.is_premium) return;
+    // Track click
+    fetch('/api/public/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        board_id: board.id,
+        card_id: card.id,
+        event_type: 'card_click',
+        visitor_id: localStorage.getItem('fb_visitor') || null,
+      }),
+    }).catch(() => {});
+    setSelectedCard(card);
+  };
 
   return (
     <>
@@ -77,7 +131,7 @@ useEffect(() => {
         <header className="max-w-4xl mx-auto px-6 pt-16 pb-10 text-center">
           <h1
             className="font-display text-4xl sm:text-5xl leading-tight mb-3"
-            style={{ fontFamily: board.settings?.font_display || 'DM Serif Display' }}
+            style={{ fontFamily: fontDisplay }}
           >
             {board.title}
           </h1>
@@ -89,7 +143,40 @@ useEffect(() => {
           <div className="w-12 h-0.5 mx-auto mt-8" style={{ backgroundColor: accentColor }} />
         </header>
 
-        {/* Cards */}
+        {/* Tag filter */}
+        {allTags.length > 0 && (
+          <div className="max-w-5xl mx-auto px-6 pb-6">
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              <button
+                onClick={() => setActiveTag(null)}
+                className={`px-3 py-1 text-xs font-medium rounded-full transition-colors
+                           ${!activeTag
+                             ? 'text-white'
+                             : 'bg-flow-warm text-flow-muted hover:text-flow-ink'
+                           }`}
+                style={!activeTag ? { backgroundColor: accentColor } : undefined}
+              >
+                All
+              </button>
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-colors
+                             ${activeTag === tag
+                               ? 'text-white'
+                               : 'bg-flow-warm text-flow-muted hover:text-flow-ink'
+                             }`}
+                  style={activeTag === tag ? { backgroundColor: accentColor } : undefined}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Cards grid */}
         <main className="max-w-5xl mx-auto px-6 pb-20">
           <div
             className={
@@ -98,9 +185,8 @@ useEffect(() => {
                 : 'grid sm:grid-cols-2 lg:grid-cols-3 gap-5'
             }
           >
-            {cards.map((card) => {
+            {filteredCards.map((card) => {
               const TypeIcon = typeIcons[card.type] || FileText;
-              const isExpanded = expandedCard === card.id;
 
               return (
                 <article
@@ -108,22 +194,8 @@ useEffect(() => {
                   className="bg-white border border-flow-border rounded-card shadow-card 
                              hover:shadow-card-hover transition-all duration-300 
                              cursor-pointer overflow-hidden group"
-onClick={() => {
-  if (card.is_premium) return;
-  fetch('/api/public/track', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      board_id: board!.id,
-      card_id: card.id,
-      event_type: 'card_click',
-      visitor_id: localStorage.getItem('fb_visitor') || null,
-    }),
-  }).catch(() => {});
-  setExpandedCard(isExpanded ? null : card.id);
-}}
+                  onClick={() => handleCardClick(card)}
                 >
-                  {/* Cover image */}
                   {card.cover_image && (
                     <div className="aspect-[16/9] overflow-hidden">
                       <img
@@ -135,8 +207,7 @@ onClick={() => {
                   )}
 
                   <div className="p-5">
-                    {/* Type + premium badge */}
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-3 flex-wrap">
                       <TypeIcon size={13} className="text-flow-muted" />
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-flow-muted">
                         {card.type}
@@ -153,44 +224,35 @@ onClick={() => {
                       )}
                     </div>
 
-                    {/* Title */}
                     <h2
                       className="text-lg leading-snug mb-2"
-                      style={{ fontFamily: board.settings?.font_display || 'DM Serif Display' }}
+                      style={{ fontFamily: fontDisplay }}
                     >
                       {card.title}
                     </h2>
 
-                    {/* Excerpt or content */}
                     {card.is_premium ? (
                       <div className="mt-3 p-3 rounded-lg bg-flow-warm text-center">
                         <Lock size={16} className="mx-auto mb-1.5 text-flow-muted" />
-                        <p className="text-xs text-flow-muted">
-                          Subscribe to unlock this content
-                        </p>
-                      </div>
-                    ) : isExpanded && card.content ? (
-                      <div className="text-sm text-flow-ink/80 leading-relaxed mt-3 whitespace-pre-wrap">
-                        {card.content}
+                        <p className="text-xs text-flow-muted">Subscribe to unlock this content</p>
                       </div>
                     ) : card.excerpt ? (
                       <p className="text-sm text-flow-muted line-clamp-3">{card.excerpt}</p>
                     ) : null}
 
-                    {/* Link */}
-                    {card.link_url && !card.is_premium && (
-                      <a
-                        href={card.link_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium mt-3 
-                                   transition-colors hover:opacity-80"
-                        style={{ color: accentColor }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <ExternalLink size={12} />
-                        Read more
-                      </a>
+                    {/* Tags on card */}
+                    {(card as any).tags?.length > 0 && (
+                      <div className="flex items-center gap-1.5 mt-3 flex-wrap">
+                        {(card as any).tags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-0.5 text-[9px] font-medium rounded-full
+                                       bg-flow-warm text-flow-muted"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </article>
@@ -199,7 +261,25 @@ onClick={() => {
           </div>
         </main>
 
-        {/* Footer */}
+        {/* CTA Bar */}
+        {ctaEnabled && ctaText && (
+          <div className="sticky bottom-0 z-30">
+            <div className="max-w-5xl mx-auto px-6 pb-6">
+              <a
+                href={ctaUrl || '#'}
+                target={ctaUrl?.startsWith('http') ? '_blank' : undefined}
+                rel={ctaUrl?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className="block w-full py-4 px-6 rounded-xl text-center text-white font-medium text-sm
+                           shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.01]"
+                style={{ backgroundColor: accentColor }}
+              >
+                {ctaText}
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Powered by footer */}
         {board.settings?.show_branding && (
           <footer className="text-center pb-10">
             <a
@@ -214,6 +294,17 @@ onClick={() => {
           </footer>
         )}
       </div>
+
+      {/* Card Overlay */}
+      {selectedCard && (
+        <CardOverlay
+          card={selectedCard}
+          accentColor={accentColor}
+          fontDisplay={fontDisplay}
+          onClose={() => setSelectedCard(null)}
+        />
+      )}
     </>
   );
 }
+

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import Modal from '@/components/ui/Modal';
-import { Card, CardFormData, CardType } from '@/types';
+import Modal from '../ui/Modal';
+import { Card, CardFormData, CardType } from '../../types';
 import { FileText, Zap, MessageSquareQuote, Link2, Image } from 'lucide-react';
 import ImageUpload from '../ui/ImageUpload';
+import TagInput from '../ui/TagInput';
+import ContentEditor from '../ui/ContentEditor';
 
 interface CardEditorModalProps {
   isOpen: boolean;
@@ -28,6 +30,7 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
     cover_image: '',
     link_url: '',
     is_premium: false,
+    tags: [],
   });
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +44,7 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
         cover_image: card.cover_image || '',
         link_url: card.link_url || '',
         is_premium: card.is_premium,
+        tags: card.tags || [],
       });
     } else {
       setForm({
@@ -51,6 +55,7 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
         cover_image: '',
         link_url: '',
         is_premium: false,
+        tags: [],
       });
     }
   }, [card, isOpen]);
@@ -73,7 +78,7 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
       title={card ? 'Edit card' : 'Add a card'}
       size="lg"
     >
-      <div className="space-y-5">
+      <div className="space-y-5 max-h-[70vh] overflow-y-auto pr-1">
         {/* Type selector */}
         {!card && (
           <div>
@@ -123,16 +128,14 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
           />
         </div>
 
-        {/* Content (for article/short/quote) */}
+        {/* Content with inline image support */}
         {['article', 'short', 'quote'].includes(form.type) && (
           <div>
             <label className="label-base">Content</label>
-            <textarea
-              className="input-base resize-none font-mono text-xs"
-              rows={8}
-              placeholder="Full content (supports markdown)"
-              value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
+            <ContentEditor
+              value={form.content || ''}
+              onChange={(val: string) => setForm({ ...form, content: val })}
+              placeholder="Write your content here. You can paste or drag images directly into the editor."
             />
           </div>
         )}
@@ -156,7 +159,16 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
           <label className="label-base">Cover image</label>
           <ImageUpload
             value={form.cover_image || ''}
-            onChange={(url) => setForm({ ...form, cover_image: url })}
+            onChange={(url: string) => setForm({ ...form, cover_image: url })}
+          />
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="label-base">Tags</label>
+          <TagInput
+            value={form.tags || []}
+            onChange={(tags: string[]) => setForm({ ...form, tags })}
           />
         </div>
 
@@ -193,3 +205,4 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
     </Modal>
   );
 }
+
