@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Card } from '@/types';
+import { Card } from '../../types';
 import { X, Lock, FileText, Zap, MessageSquareQuote, Link2, Image, ExternalLink } from 'lucide-react';
 
 const typeIcons: Record<string, typeof FileText> = {
@@ -32,36 +32,6 @@ export default function CardOverlay({ card, accentColor, fontDisplay, onClose }:
     };
   }, [onClose]);
 
-  // Render content with inline images (markdown-style ![alt](url))
-  const renderContent = (content: string) => {
-    const parts = content.split(/(!\[.*?\]\(.*?\))/g);
-    return parts.map((part, i) => {
-      const imgMatch = part.match(/!\[(.*?)\]\((.*?)\)/);
-      if (imgMatch) {
-        return (
-          <figure key={i} className="my-6">
-            <img
-              src={imgMatch[2]}
-              alt={imgMatch[1]}
-              className="w-full rounded-lg shadow-card"
-            />
-            {imgMatch[1] && (
-              <figcaption className="text-xs text-flow-muted text-center mt-2 italic">
-                {imgMatch[1]}
-              </figcaption>
-            )}
-          </figure>
-        );
-      }
-      if (!part.trim()) return null;
-      return (
-        <div key={i} className="whitespace-pre-wrap">
-          {part}
-        </div>
-      );
-    });
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto">
       {/* Backdrop */}
@@ -71,7 +41,7 @@ export default function CardOverlay({ card, accentColor, fontDisplay, onClose }:
       />
 
       {/* Content */}
-      <div className="relative w-full max-w-3xl mx-4 my-8 sm:my-16 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-3xl mx-4 my-8 sm:my-16 bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -110,7 +80,7 @@ export default function CardOverlay({ card, accentColor, fontDisplay, onClose }:
                 Premium
               </span>
             )}
-            {(card as any).tags?.map((tag: string) => (
+            {card.tags?.map((tag: string) => (
               <span
                 key={tag}
                 className="px-2 py-0.5 text-[10px] font-medium rounded-full
@@ -157,9 +127,10 @@ export default function CardOverlay({ card, accentColor, fontDisplay, onClose }:
               </button>
             </div>
           ) : card.content ? (
-            <div className="prose-flow text-base text-flow-ink/85 leading-[1.8] space-y-4">
-              {renderContent(card.content)}
-            </div>
+            <div
+              className="overlay-content"
+              dangerouslySetInnerHTML={{ __html: card.content }}
+            />
           ) : (
             <p className="text-flow-muted italic">No content yet.</p>
           )}
@@ -180,6 +151,92 @@ export default function CardOverlay({ card, accentColor, fontDisplay, onClose }:
           )}
         </div>
       </div>
+
+      {/* Styles for rendered HTML content */}
+      <style jsx global>{`
+        .overlay-content {
+          font-family: 'DM Sans', system-ui, sans-serif;
+          font-size: 16px;
+          line-height: 1.8;
+          color: rgba(10, 10, 10, 0.85);
+        }
+        .overlay-content h1 {
+          font-family: 'DM Serif Display', Georgia, serif;
+          font-size: 32px;
+          font-weight: 700;
+          margin: 32px 0 16px;
+          line-height: 1.2;
+          color: #0a0a0a;
+        }
+        .overlay-content h2 {
+          font-family: 'DM Serif Display', Georgia, serif;
+          font-size: 26px;
+          font-weight: 700;
+          margin: 28px 0 14px;
+          line-height: 1.3;
+          color: #0a0a0a;
+        }
+        .overlay-content h3 {
+          font-family: 'DM Serif Display', Georgia, serif;
+          font-size: 20px;
+          font-weight: 700;
+          margin: 24px 0 12px;
+          line-height: 1.4;
+          color: #0a0a0a;
+        }
+        .overlay-content p {
+          margin: 0 0 16px;
+        }
+        .overlay-content ul {
+          list-style: disc;
+          padding-left: 28px;
+          margin: 12px 0;
+        }
+        .overlay-content ol {
+          list-style: decimal;
+          padding-left: 28px;
+          margin: 12px 0;
+        }
+        .overlay-content li {
+          margin: 6px 0;
+        }
+        .overlay-content blockquote {
+          border-left: 3px solid #e85d3a;
+          padding-left: 20px;
+          margin: 24px 0;
+          color: #9c9589;
+          font-style: italic;
+          font-size: 18px;
+        }
+        .overlay-content hr {
+          border: none;
+          border-top: 1px solid #e8e4de;
+          margin: 32px 0;
+        }
+        .overlay-content strong {
+          font-weight: 600;
+        }
+        .overlay-content em {
+          font-style: italic;
+        }
+        .overlay-content u {
+          text-decoration: underline;
+        }
+        .overlay-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 12px;
+          margin: 24px 0;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .overlay-content a {
+          color: #e85d3a;
+          text-decoration: underline;
+        }
+        .overlay-content a:hover {
+          opacity: 0.8;
+        }
+      `}</style>
     </div>
   );
 }

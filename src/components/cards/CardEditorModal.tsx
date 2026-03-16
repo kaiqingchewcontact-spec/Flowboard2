@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Modal from '../ui/Modal';
 import { Card, CardFormData, CardType } from '../../types';
 import { FileText, Zap, MessageSquareQuote, Link2, Image } from 'lucide-react';
 import ImageUpload from '../ui/ImageUpload';
 import TagInput from '../ui/TagInput';
-import ContentEditor from '../ui/ContentEditor';
+
+const RichEditor = dynamic(() => import('../ui/RichEditor'), { ssr: false });
 
 interface CardEditorModalProps {
   isOpen: boolean;
@@ -128,14 +130,14 @@ export default function CardEditorModal({ isOpen, onClose, onSave, card }: CardE
           />
         </div>
 
-        {/* Content with inline image support */}
+        {/* Rich content editor */}
         {['article', 'short', 'quote'].includes(form.type) && (
           <div>
             <label className="label-base">Content</label>
-            <ContentEditor
+            <RichEditor
               value={form.content || ''}
-              onChange={(val: string) => setForm({ ...form, content: val })}
-              placeholder="Write your content here. You can paste or drag images directly into the editor."
+              onChange={(html: string) => setForm({ ...form, content: html })}
+              placeholder="Start writing your content..."
             />
           </div>
         )}
