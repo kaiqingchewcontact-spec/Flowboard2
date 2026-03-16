@@ -97,9 +97,11 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="px-6 py-8 border-t border-flow-border text-center">
-          <p className="text-xs text-flow-muted">
-            Built with intention. Powered by Flowboard.
-          </p>
+        <p className="text-xs text-flow-muted">
+          Built with intention. Powered by Flowboard.
+          {' · '}
+          <a href="/terms" className="hover:text-flow-ink transition-colors underline">Terms of Service</a>
+        </p>
         </footer>
       </div>
     </>

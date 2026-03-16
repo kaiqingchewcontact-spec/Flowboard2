@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { LayoutDashboard, Plus } from 'lucide-react';
+import { LayoutDashboard, Settings } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -41,7 +41,15 @@ export default function DashboardLayout({ children, title, action }: DashboardLa
                   avatarBox: 'w-8 h-8',
                 },
               }}
-            />
+            >
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="Settings"
+                  labelIcon={<Settings size={14} />}
+                  href="/settings"
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           </div>
         </div>
       </header>
