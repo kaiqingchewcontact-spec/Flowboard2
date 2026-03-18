@@ -41,20 +41,22 @@ export default function ContentCard({ card, onEdit, onDelete }: ContentCardProps
     <div
       ref={setNodeRef}
       style={style}
-      className={`card-base group ${isDragging ? 'opacity-50 shadow-card-hover scale-[1.02]' : ''}`}
+      className={`card-base group h-[260px] flex flex-col ${isDragging ? 'opacity-50 shadow-card-hover scale-[1.02]' : ''}`}
     >
       {/* Cover image */}
-      {card.cover_image && (
-        <div className="aspect-[16/9] overflow-hidden rounded-t-card">
+      {card.cover_image ? (
+        <div className="h-[110px] overflow-hidden rounded-t-card flex-shrink-0">
           <img
             src={card.cover_image}
             alt=""
             className="w-full h-full object-cover"
           />
         </div>
+      ) : (
+        <div className="h-1.5 rounded-t-card flex-shrink-0 bg-flow-border/50" />
       )}
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1 min-h-0">
         {/* Top row: drag handle + type badge + premium + actions */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -98,18 +100,18 @@ export default function ContentCard({ card, onEdit, onDelete }: ContentCardProps
         </div>
 
         {/* Title */}
-        <h3 className="font-display text-base text-flow-ink leading-snug mb-1">
+        <h3 className="font-display text-sm text-flow-ink leading-snug mb-1 line-clamp-2">
           {card.title}
         </h3>
 
         {/* Excerpt / content preview */}
         {card.excerpt && (
-          <p className="text-sm text-flow-muted line-clamp-2">{card.excerpt}</p>
+          <p className="text-xs text-flow-muted line-clamp-2">{card.excerpt}</p>
         )}
 
         {/* Link URL */}
         {card.link_url && (
-          <p className="text-xs text-flow-accent mt-2 truncate font-mono">{card.link_url}</p>
+          <p className="text-[10px] text-flow-accent mt-auto truncate font-mono">{card.link_url}</p>
         )}
       </div>
     </div>

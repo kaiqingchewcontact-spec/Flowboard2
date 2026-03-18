@@ -231,60 +231,62 @@ export default function PublicBoard() {
                   key={card.id}
                   className="bg-white border border-flow-border rounded-card shadow-card 
                              hover:shadow-card-hover transition-all duration-300 
-                             cursor-pointer overflow-hidden group"
+                             cursor-pointer overflow-hidden group h-[280px] flex flex-col"
                   onClick={() => handleCardClick(card)}
                 >
-                  {card.cover_image && (
-                    <div className="aspect-[16/9] overflow-hidden">
+                  {card.cover_image ? (
+                    <div className="h-[130px] overflow-hidden flex-shrink-0">
                       <img
                         src={card.cover_image}
                         alt=""
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
+                  ) : (
+                    <div className="h-2 flex-shrink-0" style={{ backgroundColor: accentColor, opacity: 0.15 }} />
                   )}
 
-                  <div className="p-5">
-                    <div className="flex items-center gap-2 mb-3 flex-wrap">
-                      <TypeIcon size={13} className="text-flow-muted" />
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-flow-muted">
+                  <div className="p-4 flex flex-col flex-1 min-h-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <TypeIcon size={12} className="text-flow-muted flex-shrink-0" />
+                      <span className="text-[9px] font-semibold uppercase tracking-wider text-flow-muted">
                         {card.type}
                       </span>
                       {card.is_premium && (
                         <span
-                          className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold 
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-semibold 
                                      uppercase tracking-wider rounded-full text-white"
                           style={{ backgroundColor: accentColor }}
                         >
-                          <Lock size={8} />
+                          <Lock size={7} />
                           Premium
                         </span>
                       )}
                     </div>
 
                     <h2
-                      className="text-lg leading-snug mb-2"
+                      className="text-base leading-snug mb-1.5 line-clamp-2"
                       style={{ fontFamily: fontDisplay }}
                     >
                       {card.title}
                     </h2>
 
                     {card.is_premium ? (
-                      <div className="mt-3 p-3 rounded-lg bg-flow-warm text-center">
-                        <Lock size={16} className="mx-auto mb-1.5 text-flow-muted" />
-                        <p className="text-xs text-flow-muted">Subscribe to unlock this content</p>
+                      <div className="mt-auto p-2 rounded-lg bg-flow-warm text-center">
+                        <Lock size={14} className="mx-auto mb-1 text-flow-muted" />
+                        <p className="text-[10px] text-flow-muted">Subscribe to unlock</p>
                       </div>
                     ) : card.excerpt ? (
-                      <p className="text-sm text-flow-muted line-clamp-3">{card.excerpt}</p>
+                      <p className="text-xs text-flow-muted line-clamp-2">{card.excerpt}</p>
                     ) : null}
 
-                    {/* Tags on card */}
+                    {/* Tags pinned to bottom */}
                     {(card as any).tags?.length > 0 && (
-                      <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-                        {(card as any).tags.map((tag: string) => (
+                      <div className="flex items-center gap-1.5 mt-auto pt-2 flex-wrap">
+                        {(card as any).tags.slice(0, 3).map((tag: string) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 text-[9px] font-medium rounded-full
+                            className="px-2 py-0.5 text-[8px] font-medium rounded-full
                                        bg-flow-warm text-flow-muted"
                           >
                             {tag}
