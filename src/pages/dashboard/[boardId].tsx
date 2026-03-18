@@ -495,11 +495,15 @@ export default function BoardEditor() {
                 </div>
               </div>
             </div>
+
+            {/* Analytics (inside settings) */}
+            {board.is_published && (
+              <div className="mt-5 pt-5 border-t border-flow-border">
+                <AnalyticsPanel boardId={board.id} />
+              </div>
+            )}
           </div>
         )}
-
-        {/* Analytics */}
-        {board.is_published && <AnalyticsPanel boardId={board.id} />}
 
         {/* Cards grid */}
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -512,8 +516,8 @@ export default function BoardEditor() {
                       (board.settings?.columns || 3) === 1
                         ? 'grid-cols-1 max-w-2xl'
                         : (board.settings?.columns || 3) === 2
-                        ? 'grid-cols-1 sm:grid-cols-2'
-                        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                        ? 'grid-cols-2'
+                        : 'grid-cols-2 lg:grid-cols-3'
                     }`
               }
             >
