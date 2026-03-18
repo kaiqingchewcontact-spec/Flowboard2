@@ -225,30 +225,40 @@ export default function PublicBoard() {
           >
             {filteredCards.map((card) => {
               const TypeIcon = typeIcons[card.type] || FileText;
+              const isHorizontal = columns === 1;
 
               return (
                 <article
                   key={card.id}
-                  className="bg-white border border-flow-border rounded-card shadow-card 
+                  className={`bg-white border border-flow-border rounded-card shadow-card 
                              hover:shadow-card-hover transition-all duration-300 
-                             cursor-pointer overflow-hidden group h-[280px] flex flex-col"
+                             cursor-pointer overflow-hidden group ${
+                               isHorizontal
+                                 ? 'flex flex-row h-[180px]'
+                                 : 'flex flex-col h-[280px]'
+                             }`}
                   onClick={() => handleCardClick(card)}
                 >
+                  {/* Image */}
                   {card.cover_image ? (
-                    <div className="h-[130px] overflow-hidden flex-shrink-0">
+                    <div className={`overflow-hidden flex-shrink-0 ${
+                      isHorizontal ? 'w-[40%] h-full' : 'h-[130px] w-full'
+                    }`}>
                       <img
                         src={card.cover_image}
                         alt=""
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
-                  ) : (
+                  ) : !isHorizontal ? (
                     <div className="h-2 flex-shrink-0" style={{ backgroundColor: accentColor, opacity: 0.15 }} />
-                  )}
+                  ) : null}
 
-                  <div className="p-4 flex flex-col flex-1 min-h-0">
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <TypeIcon size={12} className="text-flow-muted flex-shrink-0" />
+                  <div className={`flex flex-col flex-1 min-h-0 min-w-0 ${
+                    isHorizontal ? 'p-4 justify-center' : 'p-4'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <TypeIcon size={11} className="text-flow-muted flex-shrink-0" />
                       <span className="text-[9px] font-semibold uppercase tracking-wider text-flow-muted">
                         {card.type}
                       </span>
@@ -265,24 +275,27 @@ export default function PublicBoard() {
                     </div>
 
                     <h2
-                      className="text-base leading-snug mb-1.5 line-clamp-2"
+                      className={`leading-snug mb-1 line-clamp-2 ${
+                        isHorizontal ? 'text-lg' : 'text-sm'
+                      }`}
                       style={{ fontFamily: fontDisplay }}
                     >
                       {card.title}
                     </h2>
 
                     {card.is_premium ? (
-                      <div className="mt-auto p-2 rounded-lg bg-flow-warm text-center">
-                        <Lock size={14} className="mx-auto mb-1 text-flow-muted" />
+                      <div className="mt-1 p-2 rounded-lg bg-flow-warm text-center">
                         <p className="text-[10px] text-flow-muted">Subscribe to unlock</p>
                       </div>
                     ) : card.excerpt ? (
-                      <p className="text-xs text-flow-muted line-clamp-2">{card.excerpt}</p>
+                      <p className={`text-flow-muted ${isHorizontal ? 'text-sm line-clamp-2' : 'text-xs line-clamp-2'}`}>
+                        {card.excerpt}
+                      </p>
                     ) : null}
 
-                    {/* Tags pinned to bottom */}
+                    {/* Tags */}
                     {(card as any).tags?.length > 0 && (
-                      <div className="flex items-center gap-1.5 mt-auto pt-2 flex-wrap">
+                      <div className="flex items-center gap-1.5 mt-auto pt-1.5 flex-wrap">
                         {(card as any).tags.slice(0, 3).map((tag: string) => (
                           <span
                             key={tag}
