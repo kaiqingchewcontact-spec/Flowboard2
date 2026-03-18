@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
+import { clerkClient } from '@clerk/nextjs/server';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -26,5 +27,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (cardsError) return res.status(500).json({ error: cardsError.message });
 
-  return res.status(200).json({ data: { board, cards } });
+  // Fetch creator profile from Clerk
+  let creator = null;
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(board.user_id);
+    creator = {
+      firstName: user.firstName || null,
+      lastName: user.lastName || null,
+      imageUrl: user.imageUrl || null,
+    };
+  } catch {
+    // If Clerk lookup fails, proceed without creator info
+  }
+
+  return res.status(200).json({ data: { board, cards, creator } });
 }

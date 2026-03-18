@@ -13,12 +13,19 @@ const typeIcons: Record<string, typeof FileText> = {
   image: Image,
 };
 
+interface Creator {
+  firstName: string | null;
+  lastName: string | null;
+  imageUrl: string | null;
+}
+
 export default function PublicBoard() {
   const router = useRouter();
   const { slug } = router.query;
 
   const [board, setBoard] = useState<Board | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
+  const [creator, setCreator] = useState<Creator | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
@@ -33,6 +40,7 @@ export default function PublicBoard() {
         const json = await res.json();
         setBoard(json.data.board);
         setCards(json.data.cards);
+        if (json.data.creator) setCreator(json.data.creator);
       } catch {
         setError(true);
       } finally {
@@ -102,7 +110,6 @@ export default function PublicBoard() {
 
   const handleCardClick = (card: Card) => {
     if (card.is_premium) return;
-    // Track click
     fetch('/api/public/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -116,6 +123,10 @@ export default function PublicBoard() {
     setSelectedCard(card);
   };
 
+  const creatorName = creator
+    ? [creator.firstName, creator.lastName].filter(Boolean).join(' ')
+    : null;
+
   return (
     <>
       <Head>
@@ -127,8 +138,28 @@ export default function PublicBoard() {
       </Head>
 
       <div className="min-h-screen" style={{ backgroundColor: bgColor }}>
-        {/* Header */}
+        {/* Header with profile */}
         <header className="max-w-4xl mx-auto px-6 pt-16 pb-10 text-center">
+          {/* Creator profile avatar */}
+          {creator?.imageUrl && (
+            <div className="mb-5 flex justify-center">
+              <img
+                src={creator.imageUrl}
+                alt={creatorName || 'Creator'}
+                className="w-16 h-16 rounded-full border-2 object-cover"
+                style={{ borderColor: accentColor }}
+              />
+            </div>
+          )}
+
+          {/* Creator name */}
+          {creatorName && (
+            <p className="text-sm font-medium text-flow-muted mb-3 tracking-wide uppercase"
+               style={{ fontSize: '11px', letterSpacing: '0.08em' }}>
+              {creatorName}
+            </p>
+          )}
+
           <h1
             className="font-display text-4xl sm:text-5xl leading-tight mb-3"
             style={{ fontFamily: fontDisplay }}
@@ -307,4 +338,3 @@ export default function PublicBoard() {
     </>
   );
 }
-
