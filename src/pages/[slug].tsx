@@ -88,6 +88,7 @@ export default function PublicBoard() {
   const accentColor = board.settings?.accent_color || '#e85d3a';
   const bgColor = board.settings?.background_color || '#faf9f7';
   const layout = board.settings?.layout || 'grid';
+  const columns = board.settings?.columns || 3;
   const fontDisplay = board.settings?.font_display || 'DM Serif Display';
 
   // CTA settings from board
@@ -213,7 +214,13 @@ export default function PublicBoard() {
             className={
               layout === 'list'
                 ? 'space-y-5 max-w-2xl mx-auto'
-                : 'grid sm:grid-cols-2 lg:grid-cols-3 gap-5'
+                : `grid gap-5 ${
+                    columns === 1
+                      ? 'grid-cols-1 max-w-2xl mx-auto'
+                      : columns === 2
+                      ? 'grid-cols-1 sm:grid-cols-2'
+                      : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  }`
             }
           >
             {filteredCards.map((card) => {

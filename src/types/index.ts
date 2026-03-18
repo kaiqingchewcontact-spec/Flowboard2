@@ -21,7 +21,7 @@ export interface BoardSettings {
   font_display: string;
   font_body: string;
   layout: 'grid' | 'masonry' | 'list';
-  columns: 2 | 3 | 4;
+  columns: 1 | 2 | 3;
   show_branding: boolean;
   cta_enabled?: boolean;
   cta_text?: string;

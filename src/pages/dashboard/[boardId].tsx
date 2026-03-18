@@ -419,7 +419,7 @@ export default function BoardEditor() {
         {showSettings && (
           <div className="card-base p-5 mb-8">
             <h3 className="font-display text-sm text-flow-ink mb-4">Board settings</h3>
-            <div className="grid sm:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-4 gap-4">
               <div>
                 <label className="label-base">Slug</label>
                 <div className="flex items-center gap-1">
@@ -473,6 +473,27 @@ export default function BoardEditor() {
                   ))}
                 </div>
               </div>
+              <div>
+                <label className="label-base">Columns</label>
+                <div className="flex items-center gap-1">
+                  {([1, 2, 3] as const).map((col) => (
+                    <button
+                      key={col}
+                      onClick={() => {
+                        const settings = { ...board.settings, columns: col };
+                        updateBoardImmediate({ settings });
+                      }}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                        (board.settings?.columns || 3) === col
+                          ? 'bg-flow-ink text-flow-paper'
+                          : 'text-flow-muted hover:bg-flow-warm'
+                      }`}
+                    >
+                      {col}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -487,7 +508,13 @@ export default function BoardEditor() {
               className={
                 board.settings?.layout === 'list'
                   ? 'space-y-4 max-w-2xl'
-                  : 'grid sm:grid-cols-2 lg:grid-cols-3 gap-4'
+                  : `grid gap-4 ${
+                      (board.settings?.columns || 3) === 1
+                        ? 'grid-cols-1 max-w-2xl'
+                        : (board.settings?.columns || 3) === 2
+                        ? 'grid-cols-1 sm:grid-cols-2'
+                        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                    }`
               }
             >
               {cards.map((card) => (
