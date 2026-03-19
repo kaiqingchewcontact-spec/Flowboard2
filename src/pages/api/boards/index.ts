@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { DEFAULT_BOARD_SETTINGS } from '@/types';
+import { getUserPlan } from '@/lib/plans';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId } = getAuth(req);
@@ -23,6 +24,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     const { title, description } = req.body;
     if (!title) return res.status(400).json({ error: 'Title is required' });
+
+    // Check board limit
+    const plan = await getUserPlan(userId);
+    const { count } = await supabaseAdmin
+      .from('boards')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    if ((count || 0) >= plan.maxBoards) {
+      return res.status(403).json({
+        error: `You've reached the ${plan.maxBoards} board limit on the ${plan.plan} plan. Upgrade to create more.`,
+        upgrade: true,
+      });
+    }
 
     // Generate slug from title
     const baseSlug = title

@@ -26,6 +26,7 @@ export default function PublicBoard() {
   const [board, setBoard] = useState<Board | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
   const [creator, setCreator] = useState<Creator | null>(null);
+  const [showBranding, setShowBranding] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
@@ -41,6 +42,7 @@ export default function PublicBoard() {
         setBoard(json.data.board);
         setCards(json.data.cards);
         if (json.data.creator) setCreator(json.data.creator);
+        if (json.data.showBranding !== undefined) setShowBranding(json.data.showBranding);
       } catch {
         setError(true);
       } finally {
@@ -333,7 +335,7 @@ export default function PublicBoard() {
         )}
 
         {/* Powered by footer */}
-        {board.settings?.show_branding && (
+        {showBranding && (
           <footer className="text-center pb-10">
             <a
               href="/"

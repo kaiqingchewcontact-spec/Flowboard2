@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabaseAdmin } from '@/lib/supabase';
 import { clerkClient } from '@clerk/nextjs/server';
+import { getUserPlan } from '@/lib/plans';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -41,5 +42,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // If Clerk lookup fails, proceed without creator info
   }
 
-  return res.status(200).json({ data: { board, cards, creator } });
+  // Check if creator can remove branding
+  const plan = await getUserPlan(board.user_id);
+  const showBranding = !plan.canRemoveBranding;
+
+  return res.status(200).json({ data: { board, cards, creator, showBranding } });
 }

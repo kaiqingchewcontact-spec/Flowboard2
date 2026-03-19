@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { LayoutDashboard, Settings } from 'lucide-react';
+import { LayoutDashboard, Settings, CreditCard } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -31,6 +31,14 @@ export default function DashboardLayout({ children, title, action }: DashboardLa
                 <LayoutDashboard size={15} />
                 Boards
               </Link>
+              <Link
+                href="/billing"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-flow-muted 
+                           hover:text-flow-ink rounded-md transition-colors"
+              >
+                <CreditCard size={15} />
+                Billing
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -43,6 +51,11 @@ export default function DashboardLayout({ children, title, action }: DashboardLa
               }}
             >
               <UserButton.MenuItems>
+                <UserButton.Link
+                  label="Billing"
+                  labelIcon={<CreditCard size={14} />}
+                  href="/billing"
+                />
                 <UserButton.Link
                   label="Settings"
                   labelIcon={<Settings size={14} />}

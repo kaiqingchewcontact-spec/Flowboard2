@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getUserPlan } from '@/lib/plans';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId } = getAuth(req);
@@ -45,6 +46,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .single();
 
     if (!board) return res.status(404).json({ error: 'Board not found' });
+
+    // Check card limit
+    const plan = await getUserPlan(userId);
+    const { count } = await supabaseAdmin
+      .from('cards')
+      .select('*', { count: 'exact', head: true })
+      .eq('board_id', board_id);
+
+    if ((count || 0) >= plan.maxCardsPerBoard) {
+      return res.status(403).json({
+        error: `You've reached the ${plan.maxCardsPerBoard} card limit on the ${plan.plan} plan. Upgrade to add more.`,
+        upgrade: true,
+      });
+    }
 
     // Get next order index
     const { data: lastCard } = await supabaseAdmin
