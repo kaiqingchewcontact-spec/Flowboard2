@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Invalid plan' });
   }
 
-  const priceId = PLANS[plan].priceId;
+  const priceId = plan === 'creator' ? PLANS.creator.priceId : PLANS.pro.priceId;
   if (!priceId) return res.status(500).json({ error: 'Price not configured' });
 
   // Check if user already has a Stripe customer ID
