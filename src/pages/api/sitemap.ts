@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 const BASE_URL = 'https://flowboard2.vercel.app';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const staticPages = ['', '/blog', '/terms', '/sign-in', '/sign-up'];
+  const staticPages = ['', '/blog', '/explore', '/terms', '/sign-in', '/sign-up'];
 
   // Fetch all published boards for indexing
   const { data: boards } = await supabaseAdmin

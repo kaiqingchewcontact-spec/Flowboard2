@@ -497,6 +497,28 @@ export default function BoardEditor() {
                       </div>
                     )}
 
+                    {/* Explore opt-in */}
+                    {board.is_published && (
+                      <div>
+                        <label className="label-base">Explore gallery</label>
+                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={(board.settings as any)?.show_on_explore || false}
+                            onChange={(e) => {
+                              const settings = { ...board.settings, show_on_explore: e.target.checked };
+                              updateImmediate({ settings });
+                            }}
+                            className="rounded"
+                          />
+                          List on Explore page
+                        </label>
+                        <p className="text-[10px] text-flow-muted mt-1">
+                          Your board will appear in Flowboard&apos;s public gallery for others to discover.
+                        </p>
+                      </div>
+                    )}
+
                     {/* CTA settings */}
                     <div className="pt-3 border-t border-flow-border">
                       <label className="label-base">Call to action</label>

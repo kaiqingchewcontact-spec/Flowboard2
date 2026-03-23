@@ -85,6 +85,7 @@ export default function Home() {
             <span style={{ fontFamily: '"DM Serif Display"', fontSize: '16px' }}>Flowboard</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <Link href="/explore" style={{ fontSize: '13px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Explore</Link>
             <Link href="/blog" style={{ fontSize: '13px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Blog</Link>
             <Link href="/sign-in" style={{ fontSize: '13px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Sign in</Link>
             <Link href={ctaHref} className="btn-primary" style={{ fontSize: '13px', padding: '8px 16px' }}>
@@ -374,6 +375,7 @@ export default function Home() {
           <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '12px' }}>
             <span style={{ fontSize: '12px', color: 'var(--flow-muted)' }}>&copy; 2026 Flowboard</span>
             <div style={{ display: 'flex', gap: '20px' }}>
+              <a href="/explore" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Explore</a>
               <a href="/blog" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Blog</a>
               <a href="/terms" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Terms</a>
               <a href="/sign-in" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Sign in</a>
