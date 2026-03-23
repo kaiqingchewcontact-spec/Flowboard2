@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { LayoutDashboard, Settings, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Settings, CreditCard, Compass } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -30,6 +30,14 @@ export default function DashboardLayout({ children, title, action }: DashboardLa
               >
                 <LayoutDashboard size={15} />
                 Boards
+              </Link>
+              <Link
+                href="/explore"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-flow-muted 
+                           hover:text-flow-ink rounded-md transition-colors"
+              >
+                <Compass size={15} />
+                Explore
               </Link>
               <Link
                 href="/billing"
