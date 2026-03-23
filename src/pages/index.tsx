@@ -105,6 +105,9 @@ export default function Home() {
             <span style={{ fontFamily: '"DM Serif Display"', fontSize: '16px' }}>Flowboard</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <Link href="/blog" style={{ fontSize: '13px', color: 'var(--flow-muted)', textDecoration: 'none' }}>
+              Blog
+            </Link>
             <Link href="/sign-in" style={{ fontSize: '13px', color: 'var(--flow-muted)', textDecoration: 'none' }}>
               Sign in
             </Link>
@@ -473,6 +476,7 @@ export default function Home() {
               &copy; 2026 Flowboard
             </span>
             <div style={{ display: 'flex', gap: '20px' }}>
+              <a href="/blog" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Blog</a>
               <a href="/terms" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Terms</a>
               <a href="/sign-in" style={{ fontSize: '12px', color: 'var(--flow-muted)', textDecoration: 'none' }}>Sign in</a>
             </div>
