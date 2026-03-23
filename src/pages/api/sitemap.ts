@@ -1,10 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { blogPosts } from '@/lib/blog';
+import { supabaseAdmin } from '@/lib/supabase';
 
 const BASE_URL = 'https://flowboard2.vercel.app';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const staticPages = ['', '/blog', '/terms', '/sign-in', '/sign-up'];
+
+  // Fetch all published boards for indexing
+  const { data: boards } = await supabaseAdmin
+    .from('boards')
+    .select('slug, updated_at')
+    .eq('is_published', true);
 
   const urls = [
     ...staticPages.map((path) => `
@@ -19,6 +26,13 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       <changefreq>monthly</changefreq>
       <priority>0.8</priority>
     </url>`),
+    ...(boards || []).map((board) => `
+    <url>
+      <loc>${BASE_URL}/${board.slug}</loc>
+      <lastmod>${new Date(board.updated_at).toISOString().split('T')[0]}</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.6</priority>
+    </url>`),
   ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -27,6 +41,6 @@ ${urls.join('')}
 </urlset>`;
 
   res.setHeader('Content-Type', 'application/xml');
-  res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+  res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
   res.status(200).send(sitemap);
 }

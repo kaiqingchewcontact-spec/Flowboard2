@@ -496,6 +496,49 @@ export default function BoardEditor() {
                         </button>
                       </div>
                     )}
+
+                    {/* CTA settings */}
+                    <div className="pt-3 border-t border-flow-border">
+                      <label className="label-base">Call to action</label>
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-xs cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={(board.settings as any)?.cta_enabled || false}
+                            onChange={(e) => {
+                              const settings = { ...board.settings, cta_enabled: e.target.checked };
+                              updateLocal({ settings });
+                            }}
+                            className="rounded"
+                          />
+                          Enable CTA button on board
+                        </label>
+                        {(board.settings as any)?.cta_enabled && (
+                          <>
+                            <input
+                              type="text"
+                              className="input-base text-xs"
+                              placeholder="Button text (e.g. Subscribe)"
+                              value={(board.settings as any)?.cta_text || ''}
+                              onChange={(e) => {
+                                const settings = { ...board.settings, cta_text: e.target.value };
+                                updateLocal({ settings });
+                              }}
+                            />
+                            <input
+                              type="text"
+                              className="input-base text-xs"
+                              placeholder="Button URL (e.g. https://...)"
+                              value={(board.settings as any)?.cta_url || ''}
+                              onChange={(e) => {
+                                const settings = { ...board.settings, cta_url: e.target.value };
+                                updateLocal({ settings });
+                              }}
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   /* Analytics tab */
